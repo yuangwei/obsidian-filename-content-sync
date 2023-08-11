@@ -1,4 +1,4 @@
-import { App, Editor, MarkdownView, Modal, Notice, Plugin, PluginSettingTab, Setting } from 'obsidian';
+import { App, Editor, MarkdownView, Modal, Notice, Plugin, PluginSettingTab, Setting, TFile } from 'obsidian';
 
 // Remember to rename these classes and interfaces!
 
@@ -25,9 +25,27 @@ export default class FileNameContentSyncPlugin extends Plugin {
 		);
 
 		this.registerEvent(
-			this.app.workspace.on('file-open', (file) => {
+			this.app.workspace.on('file-open', async (file) => {
+				if (!file) return
+				let text = await this.app.vault.read(file);
+				console.log(text)
 				// if (this.settings.useFileOpenHook && file !== null) {
 				//   return this.handleSyncFilenameToHeading(file, file.path);
+				// }
+			}),
+		);
+
+		this.registerEvent(
+			this.app.vault.on('modify', async (file: TFile) => {
+				if (!file) return
+				let text = await this.app.vault.read(file as TFile);
+				const title = text.split('\n')[0]
+				if (title) {
+					const newPath = `${file?.parent?.path}/${title}.md`;
+					await this.app.fileManager.renameFile(file, newPath);
+				}
+				// if (this.settings.useFileSaveHook) {
+				//   return this.handleSyncHeadingToFile(file);
 				// }
 			}),
 		);
