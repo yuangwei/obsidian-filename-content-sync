@@ -1,4 +1,4 @@
-# Obsidian Sample Plugin
+# FileName Content Sync
 
 This is a sample plugin for Obsidian (https://obsidian.md).
 
