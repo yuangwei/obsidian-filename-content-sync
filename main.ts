@@ -1,4 +1,5 @@
 import { App, Editor, MarkdownView, Modal, Notice, Plugin, PluginSettingTab, Setting, TFile } from 'obsidian';
+import { findNoteStart, getFileName } from 'utils';
 
 // Remember to rename these classes and interfaces!
 
@@ -11,6 +12,7 @@ const DEFAULT_SETTINGS: FileNameContentSyncPluginSettings = {
 }
 
 export default class FileNameContentSyncPlugin extends Plugin {
+	isRenameInProgress: boolean = false;
 	settings: FileNameContentSyncPluginSettings;
 
 	async onload() {
@@ -18,44 +20,44 @@ export default class FileNameContentSyncPlugin extends Plugin {
 
 		this.registerEvent(
 			this.app.vault.on('modify', (file) => {
-				// if (this.settings.useFileSaveHook) {
-				//   return this.handleSyncHeadingToFile(file);
-				// }
 			}),
 		);
 
 		this.registerEvent(
-			this.app.workspace.on('file-open', async (file) => {
-				if (!file) return
-				let text = await this.app.vault.read(file);
-				console.log(text)
-				// if (this.settings.useFileOpenHook && file !== null) {
-				//   return this.handleSyncFilenameToHeading(file, file.path);
-				// }
+			this.app.workspace.on('file-open', (file) => {
+				this.changeFileName(file as TFile)
 			}),
 		);
 
 		this.registerEvent(
-			this.app.vault.on('modify', async (file: TFile) => {
-				if (!file) return
-				let text = await this.app.vault.read(file as TFile);
-				const title = text.split('\n')[0]
-				if (title) {
-					const newPath = `${file?.parent?.path}/${title}.md`;
-					await this.app.fileManager.renameFile(file, newPath);
-				}
-				// if (this.settings.useFileSaveHook) {
-				//   return this.handleSyncHeadingToFile(file);
-				// }
+			this.app.vault.on('modify', (file: TFile) => {
+				this.changeFileName(file as TFile)
 			}),
 		);
 
-		this.addSettingTab(new ileNameContentSyncTab(this.app, this));
+		this.addSettingTab(new FileNameContentSyncTab(this.app, this));
 
 	}
 
 	onunload() {
 
+	}
+
+	async changeFileName(file: TFile) {
+		if (
+			this.isRenameInProgress
+			|| !(file instanceof TFile)
+			|| file.extension !== 'md'
+		) {
+			return
+		}
+		const text = await this.app.vault.read(file)
+		const content = text.split('\n')
+		const startLine = findNoteStart(content)
+		const fileName = getFileName(content, startLine)
+		if (!fileName) return
+		const newPath = `${file?.parent?.path}/${fileName}.md`;
+		await this.app.fileManager.renameFile(file, newPath);
 	}
 
 	async loadSettings() {
@@ -69,7 +71,7 @@ export default class FileNameContentSyncPlugin extends Plugin {
 
 
 
-class ileNameContentSyncTab extends PluginSettingTab {
+class FileNameContentSyncTab extends PluginSettingTab {
 	plugin: FileNameContentSyncPlugin;
 
 	constructor(app: App, plugin: FileNameContentSyncPlugin) {
