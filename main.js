@@ -51,7 +51,7 @@ var getFileName = function(fileLines, startLine) {
     const noSymbol = replaceSymbol(noTag);
     if (!noSymbol || noSymbol === " ")
       continue;
-    return noSymbol;
+    return noSymbol.replace(/\s*/g, "");
   }
   return null;
 };
@@ -59,7 +59,7 @@ var replaceTag = function(line) {
   return line.replace(/(?<=(\s|^))#[^\s\!\@\#\$\%\^\&\*\(\)]+(?=(\s|$))/, "");
 };
 var replaceSymbol = function(line) {
-  return line.replace(/[\\s*\/:|#^[\]]/g, "");
+  return line.replace(/[\\/:|#^[\]]/g, "");
 };
 
 // main.ts
