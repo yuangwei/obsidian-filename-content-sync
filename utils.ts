@@ -27,5 +27,5 @@ const replaceTag = function (line: string) {
 }
 
 const replaceSymbol = function (line: string) {
-  return line.replace(/[\\/:|#^[\]]/g, '');
+  return line.replace(/[\\s*\/:|#^[\]]/g, '');
 }

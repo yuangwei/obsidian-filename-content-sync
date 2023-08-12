@@ -59,7 +59,7 @@ var replaceTag = function(line) {
   return line.replace(/(?<=(\s|^))#[^\s\!\@\#\$\%\^\&\*\(\)]+(?=(\s|$))/, "");
 };
 var replaceSymbol = function(line) {
-  return line.replace(/[\\/:|#^[\]]/g, "");
+  return line.replace(/[\\s*\/:|#^[\]]/g, "");
 };
 
 // main.ts
