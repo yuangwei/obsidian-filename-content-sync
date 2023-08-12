@@ -4,11 +4,11 @@ import { findNoteStart, getFileName } from 'utils';
 // Remember to rename these classes and interfaces!
 
 interface FileNameContentSyncPluginSettings {
-	mySetting: string;
+	path: string;
 }
 
 const DEFAULT_SETTINGS: FileNameContentSyncPluginSettings = {
-	mySetting: 'default'
+	path: ''
 }
 
 export default class FileNameContentSyncPlugin extends Plugin {
@@ -44,10 +44,16 @@ export default class FileNameContentSyncPlugin extends Plugin {
 	}
 
 	async changeFileName(file: TFile) {
+		const validPath = this.settings.path;
+		if (validPath === '') return
+		const filePath = file.parent?.path
+		const firstPath = filePath?.split('/')[0]
+		console.log(firstPath, validPath)
 		if (
 			this.isRenameInProgress
 			|| !(file instanceof TFile)
 			|| file.extension !== 'md'
+			|| firstPath !== validPath
 		) {
 			return
 		}
@@ -56,7 +62,7 @@ export default class FileNameContentSyncPlugin extends Plugin {
 		const startLine = findNoteStart(content)
 		const fileName = getFileName(content, startLine)
 		if (!fileName) return
-		const newPath = `${file?.parent?.path}/${fileName}.md`;
+		const newPath = `${filePath}/${fileName}.md`;
 		await this.app.fileManager.renameFile(file, newPath);
 	}
 
@@ -85,13 +91,13 @@ class FileNameContentSyncTab extends PluginSettingTab {
 		containerEl.empty();
 
 		new Setting(containerEl)
-			.setName('Setting #1')
-			.setDesc('It\'s a secret')
+			.setName('Folder')
+			.setDesc('生效的路径')
 			.addText(text => text
-				.setPlaceholder('Enter your secret')
-				.setValue(this.plugin.settings.mySetting)
+				.setPlaceholder('Enter your path')
+				.setValue(this.plugin.settings.path)
 				.onChange(async (value) => {
-					this.plugin.settings.mySetting = value;
+					this.plugin.settings.path = value;
 					await this.plugin.saveSettings();
 				}));
 	}
