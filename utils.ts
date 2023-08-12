@@ -17,7 +17,7 @@ export const getFileName = function (fileLines: string[], startLine: number) {
     if (!noTag || noTag === ' ') continue
     const noSymbol = replaceSymbol(noTag)
     if (!noSymbol || noSymbol === ' ') continue
-    return noSymbol.replace(/\s*/g, '')
+    return noSymbol.replace(/^.*?\s/, '')
   }
   return null
 }
