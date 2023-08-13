@@ -48,7 +48,6 @@ export default class FileNameContentSyncPlugin extends Plugin {
 		if (validPath === '') return
 		const filePath = file.parent?.path
 		const firstPath = filePath?.split('/')[0]
-		console.log(firstPath, validPath)
 		if (
 			this.isRenameInProgress
 			|| !(file instanceof TFile)

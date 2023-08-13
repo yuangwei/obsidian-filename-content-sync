@@ -17,7 +17,7 @@ export const getFileName = function (fileLines: string[], startLine: number) {
     if (!noTag || noTag === ' ') continue
     const noSymbol = replaceSymbol(noTag)
     if (!noSymbol || noSymbol === ' ') continue
-    return noSymbol.replace(/^.*?\s/, '')
+    return noSymbol
   }
   return null
 }
@@ -27,5 +27,18 @@ const replaceTag = function (line: string) {
 }
 
 const replaceSymbol = function (line: string) {
-  return line.replace(/[\\/:|#^[\]]/g, '');
+  return line
+    .replace(/[\\/:|#^[\]]/g, '')
+    .replace(/^.*?\s/, '')
+    .replace(/[^\w\s\u4e00-\u9fa5]+$/, '')
+}
+
+
+const extractFirstSentence = function (line: string) {
+  const match = line.match(/^.*?[。！？：!?.]/);
+  if (match) {
+    return match[0];
+  } else {
+    return line;
+  }
 }
